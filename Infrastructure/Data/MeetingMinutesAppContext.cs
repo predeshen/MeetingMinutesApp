@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MeetingMinutesApp.Infrastructure.Data
 {
-    public class ResolutionActionContext : DbContext
+    public class MeetingMinutesAppContext : DbContext
     {
         public DbSet<MeetingType> MeetingTypes { get; set; }
         public DbSet<Meeting> Meetings { get; set; }
@@ -11,7 +11,7 @@ namespace MeetingMinutesApp.Infrastructure.Data
         public DbSet<MeetingItemStatus> MeetingItemStatuses { get; set; }
         public DbSet<Person> Persons { get; set; }
 
-        public ResolutionActionContext(DbContextOptions<ResolutionActionContext> options) : base(options) { }
+        public MeetingMinutesAppContext(DbContextOptions<MeetingMinutesAppContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
