@@ -1,13 +1,31 @@
+using MeetingMinutesApp.Application.UseCases;
+using MeetingMinutesApp.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Register the DbContext
+builder.Services.AddDbContext<MeetingMinutesAppContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Register the application services
+builder.Services.AddScoped<CaptureNewMeeting>();
+builder.Services.AddScoped<UpdateMeetingItemStatus>();
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Seed the database
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<MeetingMinutesAppContext>();
+    DbInitializer.Initialize(context);
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -16,5 +34,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.Run();
+app.UseAuthorization();
 
+app.MapControllers();
+
+app.Run();

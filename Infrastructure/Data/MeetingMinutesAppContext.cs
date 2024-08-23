@@ -15,7 +15,19 @@ namespace MeetingMinutesApp.Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //To Do : Add relationships and constraints
+            base.OnModelCreating(modelBuilder);
+
+            // Seed initial data
+            modelBuilder.Entity<MeetingType>().HasData(
+                new MeetingType { MeetingTypeId = 1, Name = "MANCO" },
+                new MeetingType { MeetingTypeId = 2, Name = "Finance" },
+                new MeetingType { MeetingTypeId = 3, Name = "Project Team Leaders" }
+            );
+
+            modelBuilder.Entity<Person>().HasData(
+                new Person { PersonId = 1, Name = "John Doe" },
+                new Person { PersonId = 2, Name = "Jane Smith" }
+            );
         }
     }
 }
