@@ -1,4 +1,5 @@
-﻿using MeetingMinutesApp.Core.Entities;
+﻿// Infrastructure/Data/MeetingMinutesAppContext.cs
+using MeetingMinutesApp.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace MeetingMinutesApp.Infrastructure.Data
@@ -17,7 +18,7 @@ namespace MeetingMinutesApp.Infrastructure.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Seed initial data
+            // Seed data
             modelBuilder.Entity<MeetingType>().HasData(
                 new MeetingType { MeetingTypeId = 1, Name = "MANCO" },
                 new MeetingType { MeetingTypeId = 2, Name = "Finance" },

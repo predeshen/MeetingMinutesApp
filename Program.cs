@@ -1,6 +1,8 @@
 using MeetingMinutesApp.Application.UseCases;
 using MeetingMinutesApp.Infrastructure.Data;
+using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,22 +10,23 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Register the DbContext
+// Register DbContext
 builder.Services.AddDbContext<MeetingMinutesAppContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Register the application services
+// Register services
 builder.Services.AddScoped<CaptureNewMeeting>();
 builder.Services.AddScoped<UpdateMeetingItemStatus>();
 
 var app = builder.Build();
 
-// Seed the database
+// Seed database
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<MeetingMinutesAppContext>();
-    DbInitializer.Initialize(context);
+    var logger = services.GetRequiredService<ILogger<Program>>();
+    DbInitializer.Initialize(context, logger);
 }
 
 if (app.Environment.IsDevelopment())
@@ -32,10 +35,24 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+app.UseRouting();
 
 app.UseAuthorization();
 
-app.MapControllers();
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+});
+
+//Link React UI
+app.UseSpa(spa =>
+{
+    spa.Options.SourcePath = "meetingminutesui";
+
+    if (app.Environment.IsDevelopment())
+    {
+        spa.UseReactDevelopmentServer(npmScript: "start");
+    }
+});
 
 app.Run();
