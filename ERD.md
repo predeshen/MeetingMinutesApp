@@ -1,40 +1,4 @@
 ﻿# Mermaid ERD
 
 ```mermaid
-erDiagram
-    MeetingType {
-        int MeetingTypeId
-        string Name
-    }
-    
-    Meeting {
-        int MeetingId
-        int MeetingTypeId
-        date Date
-        time Time
-    }
-    
-    MeetingItem {
-        int MeetingItemId
-        int MeetingId
-        string Description
-        date DueDate
-    }
-    
-    MeetingItemStatus {
-        int StatusId
-        int MeetingItemId
-        int MeetingId
-        string Status
-        int ResponsiblePersonId
-    }
-    
-    Person {
-        int PersonId
-        string Name
-    }
-    
-    MeetingType ||--o{ Meeting : "has"
-    Meeting ||--o{ MeetingItem : "contains"
-    MeetingItem ||--o{ MeetingItemStatus : "has"
-    Person ||--o{ MeetingItemStatus : "responsible for"
+erDiagram MEETING { int MeetingId PK int MeetingTypeId FK date Date time Time } MEETINGITEM { int MeetingItemId PK int MeetingId FK string Description date DueDate int ResponsiblePersonId FK int MeetingStatusId FK } MEETINGSTATUS { int MeetingStatusId PK string Status } MEETINGTYPE { int MeetingTypeId PK string Name } MEETING ||--o{ MEETINGITEM: has MEETINGITEM }o--|| MEETINGSTATUS: "has status" MEETING }o--|| MEETINGTYPE: "is of type"
