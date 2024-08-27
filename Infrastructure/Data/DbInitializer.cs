@@ -36,7 +36,8 @@ namespace MeetingMinutesApp.Infrastructure.Data
             {
                 new MeetingItemStatus { Status = "Open" },
                 new MeetingItemStatus { Status = "In Progress" },
-                new MeetingItemStatus { Status = "Closed" }
+                new MeetingItemStatus { Status = "Closed" },
+                new MeetingItemStatus { Status = "Carry Forward" },
             };
 
             foreach (var mis in meetingItemStatuses)

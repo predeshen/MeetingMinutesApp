@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const CaptureNewMeeting = () => {
     const [meetingTypes, setMeetingTypes] = useState([]);
@@ -10,13 +11,14 @@ const CaptureNewMeeting = () => {
     const [newMeetingItems, setNewMeetingItems] = useState([]);
     const [statusTypes, setStatusTypes] = useState([]);
     const [error, setError] = useState('');
+    const navigate = useNavigate();
 
     useEffect(() => {
         axios.get('/api/meetings/meetingtypes')
             .then(response => setMeetingTypes(response.data))
             .catch(error => console.error(error));
 
-        axios.get('/api/meetingitemstatustypes')
+        axios.get('/api/meetings/meetingitemstatustypes')
             .then(response => setStatusTypes(response.data))
             .catch(error => console.error(error));
     }, []);
@@ -43,11 +45,19 @@ const CaptureNewMeeting = () => {
 
     const handleMeetingItemChange = (index, field, value) => {
         const items = [...newMeetingItems];
-        items[index][field] = value;
+        items[index] = {
+            ...items[index],
+            [field]: value
+        };
         setNewMeetingItems(items);
     };
 
     const handleSubmit = () => {
+        if (!meetingTypeId || !date || !time || previousOpenItems.some(item => !item.status) || newMeetingItems.some(item => !item.status)) {
+            setError('All fields are required.');
+            return;
+        }
+
         const request = {
             meetingTypeId,
             date,
@@ -70,6 +80,7 @@ const CaptureNewMeeting = () => {
             .then(response => {
                 console.log(response.data);
                 setError(''); // Clear any previous errors
+                navigate(`/meetingDetails/${response.data}`); // Navigate to the new meeting details
             })
             .catch(error => {
                 console.error(error);
@@ -84,6 +95,7 @@ const CaptureNewMeeting = () => {
             <div>
                 <label>Meeting Type:</label>
                 <select value={meetingTypeId} onChange={handleMeetingTypeChange}>
+                    <option value="">Select a meeting type</option>
                     {meetingTypes.map(type => (
                         <option key={type.id} value={type.id}>{type.name}</option>
                     ))}
@@ -106,6 +118,7 @@ const CaptureNewMeeting = () => {
                         <p>Person Responsible: {item.personResponsible}</p>
                         <label>Status:</label>
                         <select value={item.status} onChange={e => handlePreviousItemStatusChange(index, e.target.value)}>
+                            <option value="">Select a status</option>
                             {statusTypes.map(type => (
                                 <option key={type.id} value={type.status}>{type.status}</option>
                             ))}
@@ -137,6 +150,7 @@ const CaptureNewMeeting = () => {
                         />
                         <label>Status:</label>
                         <select value={item.status} onChange={e => handleMeetingItemChange(index, 'status', e.target.value)}>
+                            <option value="">Select a status</option>
                             {statusTypes.map(type => (
                                 <option key={type.id} value={type.status}>{type.status}</option>
                             ))}

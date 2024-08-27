@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MeetingMinutesApp.Migrations
 {
     [DbContext(typeof(MeetingMinutesAppContext))]
-    [Migration("20240827072650_IC")]
+    [Migration("20240827103635_IC")]
     partial class IC
     {
         /// <inheritdoc />

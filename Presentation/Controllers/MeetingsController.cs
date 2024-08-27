@@ -31,49 +31,57 @@ namespace MeetingMinutesApp.Presentation.Controllers
                 Time = TimeSpan.Parse(request.Time),
                 MeetingItems = new List<MeetingItem>()
             };
+            _context.Meetings.Add(meeting);
 
             // Add previous open items with updated statuses
             foreach (var item in request.PreviousOpenItems)
             {
-                var meetingItem = new MeetingItem
+                int statusId = _context.MeetingItemStatuses.Where(x => x.Status == item.Status).Select(x => x.Id).First();
+
+                if (statusId == 4)
                 {
-                    Description = item.Description,
-                    DueDate = item.DueDate,
-                    PersonResponsible = item.PersonResponsible
-                };
-                meeting.MeetingItems.Add(meetingItem);
+                    var meetingItem = new MeetingItem
+                    {
+                        MeetingId = meeting.Id,
+                        Description = item.Description,
+                        DueDate = item.DueDate,
+                        PersonResponsible = item.PersonResponsible,
+                        MeetingItemStatusId = 1
+                    };
+                    meeting.MeetingItems.Add(meetingItem);
+                }
             }
 
             // Add new items from the request
             foreach (var item in request.NewMeetingItems)
             {
+                int statusId = _context.MeetingItemStatuses.Where(x => x.Status == item.Status).Select(x=>x.Id).First();
                 meeting.MeetingItems.Add(new MeetingItem
                 {
                     Description = item.Description,
                     DueDate = item.DueDate,
                     PersonResponsible = item.PersonResponsible,
-                    MeetingItemStatusId = 1
+                    MeetingItemStatusId = statusId
                 });
             }
 
-            _context.Meetings.Add(meeting);
             await _context.SaveChangesAsync();
 
-            return Ok(meeting);
+            return Ok(meeting.Id);
         }
 
         [HttpGet("meetingtypes")]
         public async Task<IActionResult> GetMeetingTypes()
         {
             var meetingTypes = await _context.MeetingTypes.ToListAsync();
-            return Ok(meetingTypes);
+            return Ok(meetingTypes.ToArray());
         }
 
         [HttpGet("meetingitemstatustypes")]
         public async Task<IActionResult> GetMeetingitemstatustypes()
         {
             var statusTypes = await _context.MeetingItemStatuses.ToListAsync();
-            return Ok(statusTypes);
+            return Ok(statusTypes.ToArray());
         }
 
         [HttpGet("previous-open-items/{meetingTypeId}")]
@@ -81,7 +89,7 @@ namespace MeetingMinutesApp.Presentation.Controllers
         {
             var previousMeeting = await _context.Meetings
                 .Where(m => m.MeetingTypeId == meetingTypeId)
-                .OrderByDescending(m => m.Date)
+                .OrderByDescending(m => m.Id)
                 .FirstOrDefaultAsync();
 
             if (previousMeeting == null)
@@ -96,12 +104,28 @@ namespace MeetingMinutesApp.Presentation.Controllers
                     Id = mi.Id,
                     Description = mi.Description,
                     DueDate = mi.DueDate,
-                    PersonResponsible = mi.PersonResponsible,
-                    Status = mi.MeetingItemStatus.Status
+                    PersonResponsible = mi.PersonResponsible
                 })
                 .ToListAsync();
 
-            return Ok(previousOpenItems);
+            return Ok(previousOpenItems.ToArray());
+        }
+
+        [HttpGet("getMeeting/{meetingId}")]
+        public async Task<IActionResult> GetMeeting(int meetingId)
+        {
+                var meeting = await _context.Meetings
+                    .Where(x => x.Id == meetingId)
+                    .Include(x => x.MeetingItems)
+                    .ThenInclude(x => x.MeetingItemStatus)
+                    .FirstOrDefaultAsync();
+
+                if (meeting == null)
+                {
+                    return NotFound("Meeting not found.");
+                }
+
+                return Ok(meeting);
         }
     }
 }
