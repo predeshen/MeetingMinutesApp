@@ -1,7 +1,5 @@
-﻿// Application/UseCases/CaptureNewMeeting.cs
+﻿using MeetingMinutesApp.Infrastructure.Data;
 using MeetingMinutesApp.Core.Entities;
-using MeetingMinutesApp.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
 
 namespace MeetingMinutesApp.Application.UseCases
 {

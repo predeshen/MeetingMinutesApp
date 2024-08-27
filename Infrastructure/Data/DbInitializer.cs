@@ -1,50 +1,50 @@
 ﻿using MeetingMinutesApp.Core.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Linq;
 
 namespace MeetingMinutesApp.Infrastructure.Data
 {
     public static class DbInitializer
     {
-        public static void Initialize(MeetingMinutesAppContext context, ILogger logger)
+        public static void Initialize(MeetingMinutesAppContext context)
         {
-            try
+            context.Database.Migrate();
+
+            // Check if the database is already seeded
+            if (context.MeetingTypes.Any() && context.MeetingItemStatuses.Any())
             {
-                // Apply migrations
-                context.Database.Migrate();
-
-                // Seed data
-                if (!context.MeetingTypes.Any())
-                {
-                    var meetingTypes = new MeetingType[]
-                    {
-                        new MeetingType { MeetingTypeId = 1, Name = "MANCO" },
-                        new MeetingType { MeetingTypeId = 2, Name = "Finance" },
-                        new MeetingType { MeetingTypeId = 3, Name = "Project Team Leaders" }
-                    };
-
-                    context.MeetingTypes.AddRange(meetingTypes);
-                }
-
-                if (!context.Persons.Any())
-                {
-                    var persons = new Person[]
-                    {
-                        new Person { PersonId = 1, Name = "John Doe" },
-                        new Person { PersonId = 2, Name = "Jane Smith" }
-                    };
-
-                    context.Persons.AddRange(persons);
-                }
-
-                context.SaveChanges();
-                logger.LogInformation("Database initialized and seeded successfully.");
+                return; // DB has been seeded
             }
-            catch (Exception ex)
+
+            // Seed MeetingTypes
+            var meetingTypes = new MeetingType[]
             {
-                logger.LogError(ex, "An error occurred while initializing the database.");
-                throw;
+                new MeetingType { Name = "Manco" },
+                new MeetingType { Name = "Financial" },
+                new MeetingType { Name = "PTL" }
+            };
+
+            foreach (var mt in meetingTypes)
+            {
+                context.MeetingTypes.Add(mt);
             }
+
+            // Seed MeetingItemStatuses
+            var meetingItemStatuses = new MeetingItemStatus[]
+            {
+                new MeetingItemStatus { Status = "Open" },
+                new MeetingItemStatus { Status = "In Progress" },
+                new MeetingItemStatus { Status = "Closed" }
+            };
+
+            foreach (var mis in meetingItemStatuses)
+            {
+                context.MeetingItemStatuses.Add(mis);
+            }
+
+            context.SaveChanges();
         }
     }
 }

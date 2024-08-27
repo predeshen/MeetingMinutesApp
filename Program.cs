@@ -20,13 +20,20 @@ builder.Services.AddScoped<UpdateMeetingItemStatus>();
 
 var app = builder.Build();
 
-// Seed database
+// Initialize the database
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    var context = services.GetRequiredService<MeetingMinutesAppContext>();
-    var logger = services.GetRequiredService<ILogger<Program>>();
-    DbInitializer.Initialize(context, logger);
+    try
+    {
+        var context = services.GetRequiredService<MeetingMinutesAppContext>();
+        DbInitializer.Initialize(context);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while seeding the database.");
+    }
 }
 
 if (app.Environment.IsDevelopment())

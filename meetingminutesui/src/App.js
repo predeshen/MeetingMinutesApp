@@ -1,23 +1,20 @@
-// src/App.js
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import MeetingList from './components/MeetingList';
-import MeetingForm from './components/MeetingForm';
-import MeetingDetails from './components/MeetingDetails';
-import MeetingItemForm from './components/MeetingItemForm';
+import CaptureNewMeeting from './components/CaptureNewMeeting';
+import UpdateMeetingItemStatus from './components/UpdateMeetingItemStatus';
 
-const App = () => {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<MeetingList />} />
-        <Route path="/new-meeting" element={<MeetingForm />} />
-        <Route path="/meetings/:meetingId" element={<MeetingDetails />} />
-        <Route path="/meetings/:meetingId/items/new" element={<MeetingItemForm />} />
-        {/* Add routes for editing and updating status */}
-      </Routes>
-    </Router>
-  );
-};
+function App() {
+    return (
+        <Router>
+            <div>
+                <Routes>
+                    <Route path="/" element={<CaptureNewMeeting />} />
+                    <Route path="/capture-new-meeting" element={<CaptureNewMeeting />} />
+                    <Route path="/update-meeting-item-status" element={<UpdateMeetingItemStatus />} />
+                </Routes>
+            </div>
+        </Router>
+    );
+}
 
 export default App;

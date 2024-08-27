@@ -24,11 +24,11 @@ namespace MeetingMinutesApp.Migrations
 
             modelBuilder.Entity("MeetingMinutesApp.Core.Entities.Meeting", b =>
                 {
-                    b.Property<int>("MeetingId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MeetingId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
@@ -39,7 +39,7 @@ namespace MeetingMinutesApp.Migrations
                     b.Property<TimeSpan>("Time")
                         .HasColumnType("time");
 
-                    b.HasKey("MeetingId");
+                    b.HasKey("Id");
 
                     b.HasIndex("MeetingTypeId");
 
@@ -48,11 +48,11 @@ namespace MeetingMinutesApp.Migrations
 
             modelBuilder.Entity("MeetingMinutesApp.Core.Entities.MeetingItem", b =>
                 {
-                    b.Property<int>("MeetingItemId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MeetingItemId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -64,99 +64,54 @@ namespace MeetingMinutesApp.Migrations
                     b.Property<int>("MeetingId")
                         .HasColumnType("int");
 
-                    b.HasKey("MeetingItemId");
+                    b.Property<int>("MeetingItemStatusId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PersonResponsible")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("MeetingId");
+
+                    b.HasIndex("MeetingItemStatusId");
 
                     b.ToTable("MeetingItems");
                 });
 
             modelBuilder.Entity("MeetingMinutesApp.Core.Entities.MeetingItemStatus", b =>
                 {
-                    b.Property<int>("MeetingItemStatusId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MeetingItemStatusId"));
-
-                    b.Property<int>("MeetingItemId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ResponsiblePersonId")
-                        .HasColumnType("int");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("MeetingItemStatusId");
-
-                    b.HasIndex("MeetingItemId");
+                    b.HasKey("Id");
 
                     b.ToTable("MeetingItemStatuses");
                 });
 
             modelBuilder.Entity("MeetingMinutesApp.Core.Entities.MeetingType", b =>
                 {
-                    b.Property<int>("MeetingTypeId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MeetingTypeId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("MeetingTypeId");
+                    b.HasKey("Id");
 
                     b.ToTable("MeetingTypes");
-
-                    b.HasData(
-                        new
-                        {
-                            MeetingTypeId = 1,
-                            Name = "MANCO"
-                        },
-                        new
-                        {
-                            MeetingTypeId = 2,
-                            Name = "Finance"
-                        },
-                        new
-                        {
-                            MeetingTypeId = 3,
-                            Name = "Project Team Leaders"
-                        });
-                });
-
-            modelBuilder.Entity("MeetingMinutesApp.Core.Entities.Person", b =>
-                {
-                    b.Property<int>("PersonId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PersonId"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("PersonId");
-
-                    b.ToTable("Persons");
-
-                    b.HasData(
-                        new
-                        {
-                            PersonId = 1,
-                            Name = "John Doe"
-                        },
-                        new
-                        {
-                            PersonId = 2,
-                            Name = "Jane Smith"
-                        });
                 });
 
             modelBuilder.Entity("MeetingMinutesApp.Core.Entities.Meeting", b =>
@@ -178,28 +133,20 @@ namespace MeetingMinutesApp.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Meeting");
-                });
-
-            modelBuilder.Entity("MeetingMinutesApp.Core.Entities.MeetingItemStatus", b =>
-                {
-                    b.HasOne("MeetingMinutesApp.Core.Entities.MeetingItem", "MeetingItem")
-                        .WithMany("MeetingItemStatuses")
-                        .HasForeignKey("MeetingItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.HasOne("MeetingMinutesApp.Core.Entities.MeetingItemStatus", "MeetingItemStatus")
+                        .WithMany()
+                        .HasForeignKey("MeetingItemStatusId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("MeetingItem");
+                    b.Navigation("Meeting");
+
+                    b.Navigation("MeetingItemStatus");
                 });
 
             modelBuilder.Entity("MeetingMinutesApp.Core.Entities.Meeting", b =>
                 {
                     b.Navigation("MeetingItems");
-                });
-
-            modelBuilder.Entity("MeetingMinutesApp.Core.Entities.MeetingItem", b =>
-                {
-                    b.Navigation("MeetingItemStatuses");
                 });
 #pragma warning restore 612, 618
         }

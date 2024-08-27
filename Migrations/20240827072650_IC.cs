@@ -3,47 +3,45 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
-
 namespace MeetingMinutesApp.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class IC : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "MeetingTypes",
+                name: "MeetingItemStatuses",
                 columns: table => new
                 {
-                    MeetingTypeId = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MeetingTypes", x => x.MeetingTypeId);
+                    table.PrimaryKey("PK_MeetingItemStatuses", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Persons",
+                name: "MeetingTypes",
                 columns: table => new
                 {
-                    PersonId = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Persons", x => x.PersonId);
+                    table.PrimaryKey("PK_MeetingTypes", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Meetings",
                 columns: table => new
                 {
-                    MeetingId = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     MeetingTypeId = table.Column<int>(type: "int", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -51,12 +49,12 @@ namespace MeetingMinutesApp.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Meetings", x => x.MeetingId);
+                    table.PrimaryKey("PK_Meetings", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Meetings_MeetingTypes_MeetingTypeId",
                         column: x => x.MeetingTypeId,
                         principalTable: "MeetingTypes",
-                        principalColumn: "MeetingTypeId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -64,61 +62,29 @@ namespace MeetingMinutesApp.Migrations
                 name: "MeetingItems",
                 columns: table => new
                 {
-                    MeetingItemId = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     MeetingId = table.Column<int>(type: "int", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DueDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    DueDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    PersonResponsible = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    MeetingItemStatusId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MeetingItems", x => x.MeetingItemId);
+                    table.PrimaryKey("PK_MeetingItems", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_MeetingItems_MeetingItemStatuses_MeetingItemStatusId",
+                        column: x => x.MeetingItemStatusId,
+                        principalTable: "MeetingItemStatuses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_MeetingItems_Meetings_MeetingId",
                         column: x => x.MeetingId,
                         principalTable: "Meetings",
-                        principalColumn: "MeetingId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "MeetingItemStatuses",
-                columns: table => new
-                {
-                    MeetingItemStatusId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    MeetingItemId = table.Column<int>(type: "int", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ResponsiblePersonId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_MeetingItemStatuses", x => x.MeetingItemStatusId);
-                    table.ForeignKey(
-                        name: "FK_MeetingItemStatuses_MeetingItems_MeetingItemId",
-                        column: x => x.MeetingItemId,
-                        principalTable: "MeetingItems",
-                        principalColumn: "MeetingItemId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.InsertData(
-                table: "MeetingTypes",
-                columns: new[] { "MeetingTypeId", "Name" },
-                values: new object[,]
-                {
-                    { 1, "MANCO" },
-                    { 2, "Finance" },
-                    { 3, "Project Team Leaders" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "Persons",
-                columns: new[] { "PersonId", "Name" },
-                values: new object[,]
-                {
-                    { 1, "John Doe" },
-                    { 2, "Jane Smith" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -127,9 +93,9 @@ namespace MeetingMinutesApp.Migrations
                 column: "MeetingId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MeetingItemStatuses_MeetingItemId",
-                table: "MeetingItemStatuses",
-                column: "MeetingItemId");
+                name: "IX_MeetingItems_MeetingItemStatusId",
+                table: "MeetingItems",
+                column: "MeetingItemStatusId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Meetings_MeetingTypeId",
@@ -141,13 +107,10 @@ namespace MeetingMinutesApp.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "MeetingItemStatuses");
-
-            migrationBuilder.DropTable(
-                name: "Persons");
-
-            migrationBuilder.DropTable(
                 name: "MeetingItems");
+
+            migrationBuilder.DropTable(
+                name: "MeetingItemStatuses");
 
             migrationBuilder.DropTable(
                 name: "Meetings");

@@ -1,11 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace MeetingMinutesApp.Core.Entities
+﻿namespace MeetingMinutesApp.Core.Entities;
+public class MeetingType
 {
-    public class MeetingType
-    {
-        [Key]
-        public int MeetingTypeId { get; set; }
-        public string Name { get; set; }
-    }
+    public int Id { get; set; }
+    public string Name { get; set; }
 }

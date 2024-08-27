@@ -3,8 +3,10 @@
     public class CaptureNewMeetingRequest
     {
         public int MeetingTypeId { get; set; }
-        public DateTime Date { get; set; }
-        public TimeSpan Time { get; set; }
+        public string Date { get; set; }
+        public string Time { get; set; }
+        public List<MeetingItemDto> PreviousOpenItems { get; set; }
+        public List<MeetingItemDto> NewMeetingItems { get; set; }
     }
 
 }
