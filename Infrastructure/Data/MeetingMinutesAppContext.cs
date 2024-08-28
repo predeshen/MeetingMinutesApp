@@ -33,11 +33,14 @@ namespace MeetingMinutesApp.Infrastructure.Data
                 .HasForeignKey(mi => mi.MeetingId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // Add indexes
+            modelBuilder.Entity<Meeting>()
+                .HasIndex(m => m.MeetingTypeId)
+                .HasDatabaseName("IX_Meeting_MeetingTypeId");
+
             modelBuilder.Entity<MeetingItem>()
-                .HasOne(mi => mi.MeetingItemStatus)
-                .WithMany()
-                .HasForeignKey(mi => mi.MeetingItemStatusId)
-                .OnDelete(DeleteBehavior.Restrict); // No cascade delete for lookup table
+                .HasIndex(mi => mi.MeetingId)
+                .HasDatabaseName("IX_MeetingItem_MeetingId");
         }
     }
 }

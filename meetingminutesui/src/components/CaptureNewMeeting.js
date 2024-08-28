@@ -80,10 +80,12 @@ const CaptureNewMeeting = () => {
             .then(response => {
                 console.log(response.data);
                 setError(''); // Clear any previous errors
+                alert('Meeting capture successfully!'); // Add alert message
                 navigate(`/meetingDetails/${response.data}`); // Navigate to the new meeting details
             })
             .catch(error => {
                 console.error(error);
+                alert('An error occurred while capturing the new meeting. Please try again.'); // Add alert message
                 setError('An error occurred while capturing the new meeting. Please try again.');
             });
     };

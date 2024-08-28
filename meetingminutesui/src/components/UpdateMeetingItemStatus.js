@@ -42,11 +42,12 @@ const UpdateMeetingItemStatus = () => {
 
         axios.put(`/api/meetings/meetingitems/${selectedMeetingItemId}/status`, request)
             .then(response => {
-                console.log(response.data);
+                alert('Meeting item status updated successfully!'); // Add alert message
                 setError(''); // Clear any previous errors
             })
             .catch(error => {
                 console.error(error);
+                alert('An error occurred while updating the meeting item status.'); // Add alert message
                 setError('An error occurred while updating the meeting item status.');
             });
     };
