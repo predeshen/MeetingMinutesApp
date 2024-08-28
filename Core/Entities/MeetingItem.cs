@@ -12,6 +12,6 @@ namespace MeetingMinutesApp.Core.Entities
         public int MeetingItemStatusId { get; set; } // Foreign key to MeetingItemStatus
 
         public Meeting Meeting { get; set; }
-        public MeetingItemStatus MeetingItemStatus { get; set; } // Navigation property
+        public MeetingItemStatus MeetingItemStatus { get; set; }
     }
 }
