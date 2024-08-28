@@ -24,17 +24,37 @@ namespace MeetingMinutesApp.Presentation.Controllers
         [HttpPost("captureNewMeeting")]
         public async Task<IActionResult> CaptureNewMeeting([FromBody] CaptureNewMeetingRequest request)
         {
-            var meeting = new Meeting
+            try
             {
-                MeetingTypeId = request.MeetingTypeId,
-                Date = DateTime.Parse(request.Date),
-                Time = TimeSpan.Parse(request.Time),
-                MeetingItems = new List<MeetingItem>()
-            };
-            _context.Meetings.Add(meeting);
+                var meeting = MapToMeeting(request);
+                AddPreviousOpenItems(meeting, request.PreviousOpenItems);
+                AddNewMeetingItems(meeting, request.NewMeetingItems);
 
-            // Add previous open items with updated statuses
-            foreach (var item in request.PreviousOpenItems)
+                _context.Meetings.Add(meeting);
+                await _context.SaveChangesAsync();
+
+                return Ok(meeting.Id);
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult("Invalid meeting request data.");
+            }
+
+        }
+
+        private static Meeting MapToMeeting(CaptureNewMeetingRequest request)
+        {
+                return new Meeting
+                {
+                    MeetingTypeId = request.MeetingTypeId,
+                    Date = DateTime.Parse(request.Date),
+                    Time = TimeSpan.Parse(request.Time),
+                    MeetingItems = new List<MeetingItem>() 
+                };
+        }
+        private void AddPreviousOpenItems(Meeting meeting, IEnumerable<MeetingItemWithStatusDto> previousOpenItems)
+        {
+            foreach (var item in previousOpenItems)
             {
                 int statusId = _context.MeetingItemStatuses.Where(x => x.Status == item.Status).Select(x => x.Id).First();
 
@@ -51,11 +71,13 @@ namespace MeetingMinutesApp.Presentation.Controllers
                     meeting.MeetingItems.Add(meetingItem);
                 }
             }
+        }
 
-            // Add new items from the request
-            foreach (var item in request.NewMeetingItems)
+        private void AddNewMeetingItems(Meeting meeting, IEnumerable<MeetingItemDto> newMeetingItems)
+        {
+            foreach (var item in newMeetingItems)
             {
-                int statusId = _context.MeetingItemStatuses.Where(x => x.Status == item.Status).Select(x=>x.Id).First();
+                int statusId = _context.MeetingItemStatuses.Where(x => x.Status == item.Status).Select(x => x.Id).First();
                 meeting.MeetingItems.Add(new MeetingItem
                 {
                     Description = item.Description,
@@ -64,10 +86,6 @@ namespace MeetingMinutesApp.Presentation.Controllers
                     MeetingItemStatusId = statusId
                 });
             }
-
-            await _context.SaveChangesAsync();
-
-            return Ok(meeting.Id);
         }
 
         [HttpGet("meetingtypes")]
@@ -114,18 +132,18 @@ namespace MeetingMinutesApp.Presentation.Controllers
         [HttpGet("getMeeting/{meetingId}")]
         public async Task<IActionResult> GetMeeting(int meetingId)
         {
-                var meeting = await _context.Meetings
-                    .Where(x => x.Id == meetingId)
-                    .Include(x => x.MeetingItems)
-                    .ThenInclude(x => x.MeetingItemStatus)
-                    .FirstOrDefaultAsync();
+            var meeting = await _context.Meetings
+                .Where(x => x.Id == meetingId)
+                .Include(x => x.MeetingItems)
+                .ThenInclude(x => x.MeetingItemStatus)
+                .FirstOrDefaultAsync();
 
-                if (meeting == null)
-                {
-                    return NotFound("Meeting not found.");
-                }
+            if (meeting == null)
+            {
+                return NotFound("Meeting not found.");
+            }
 
-                return Ok(meeting);
+            return Ok(meeting);
         }
 
         [HttpGet("meetings")]
@@ -145,7 +163,7 @@ namespace MeetingMinutesApp.Presentation.Controllers
         [HttpGet("{meetingId}/items")]
         public async Task<IActionResult> GetMeetingItems(int meetingId)
         {
-            var meetingItem = await _context.MeetingItems.Where(x=>x.MeetingId == meetingId).ToListAsync();
+            var meetingItem = await _context.MeetingItems.Where(x => x.MeetingId == meetingId).ToListAsync();
 
             if (meetingItem == null)
             {
@@ -153,9 +171,8 @@ namespace MeetingMinutesApp.Presentation.Controllers
             }
             return Ok(meetingItem.ToArray());
         }
-
         [HttpPut("meetingitems/{meetingItemId}/status")]
-        public async Task<IActionResult> UpdateMeetingItemStatus(int meetingItemId, [FromBody] UpdateMeetingItemStatusRequest request)
+        public async Task<IActionResult> UpdateMeetingItemStatus(int meetingItemId, [FromBody] UpdateMeetingItemStatusRequestDto request)
         {
             var meetingItem = await _context.MeetingItems
                 .Include(x => x.MeetingItemStatus)

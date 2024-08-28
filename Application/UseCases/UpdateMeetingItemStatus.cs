@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
+using FluentValidation;
 using Microsoft.Extensions.Logging;
 using MeetingMinutesApp.Infrastructure.Data;
 using MeetingMinutesApp.Core.Entities;
+using MeetingMinutesApp.Application.Validators;
+using MeetingMinutesApp.Presentation.Models;
 
 public class UpdateMeetingItemStatusRequest
 {
@@ -14,11 +17,13 @@ public class UpdateMeetingItemStatus
 {
     private readonly MeetingMinutesAppContext _context;
     private readonly ILogger<UpdateMeetingItemStatus> _logger;
+    private readonly IValidator<UpdateMeetingItemStatusRequest> _validator;
 
-    public UpdateMeetingItemStatus(MeetingMinutesAppContext context, ILogger<UpdateMeetingItemStatus> logger)
+    public UpdateMeetingItemStatus(MeetingMinutesAppContext context, ILogger<UpdateMeetingItemStatus> logger, IValidator<UpdateMeetingItemStatusRequest> validator)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _validator = validator ?? throw new ArgumentNullException(nameof(validator));
     }
 
     public async Task ExecuteAsync(int meetingItemId, UpdateMeetingItemStatusRequest request)
@@ -28,9 +33,10 @@ public class UpdateMeetingItemStatus
             throw new ArgumentException("Invalid meeting item ID.", nameof(meetingItemId));
         }
 
-        if (request == null)
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsValid)
         {
-            throw new ArgumentNullException(nameof(request));
+            throw new ValidationException(validationResult.Errors);
         }
 
         try
