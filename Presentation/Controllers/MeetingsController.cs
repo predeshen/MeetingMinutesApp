@@ -127,5 +127,57 @@ namespace MeetingMinutesApp.Presentation.Controllers
 
                 return Ok(meeting);
         }
+
+        [HttpGet("meetings")]
+        public async Task<IActionResult> GetMeetings()
+        {
+            var meeting = await _context.Meetings.ToListAsync();
+
+            if (meeting == null)
+            {
+                return NotFound("Meeting not found.");
+            }
+
+            return Ok(meeting.ToArray());
+        }
+
+
+        [HttpGet("{meetingId}/items")]
+        public async Task<IActionResult> GetMeetingItems(int meetingId)
+        {
+            var meetingItem = await _context.MeetingItems.Where(x=>x.MeetingId == meetingId).ToListAsync();
+
+            if (meetingItem == null)
+            {
+                return NotFound("Meeting item not found.");
+            }
+            return Ok(meetingItem.ToArray());
+        }
+
+        [HttpPut("meetingitems/{meetingItemId}/status")]
+        public async Task<IActionResult> UpdateMeetingItemStatus(int meetingItemId, [FromBody] UpdateMeetingItemStatusRequest request)
+        {
+            var meetingItem = await _context.MeetingItems
+                .Include(x => x.MeetingItemStatus)
+                .FirstOrDefaultAsync(x => x.Id == meetingItemId);
+
+            if (meetingItem == null)
+            {
+                return NotFound("Meeting item not found.");
+            }
+
+            var status = await _context.MeetingItemStatuses
+                .FirstOrDefaultAsync(x => x.Status == request.Status);
+
+            if (status == null)
+            {
+                return BadRequest("Invalid status.");
+            }
+
+            meetingItem.MeetingItemStatus = status;
+            await _context.SaveChangesAsync();
+
+            return Ok(meetingItem);
+        }
     }
 }
