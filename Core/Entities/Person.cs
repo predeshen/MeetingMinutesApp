@@ -1,8 +1,10 @@
-﻿namespace MeetingMinutesApp.Core.Entities
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace MeetingMinutesApp.Core.Entities;
+
+public class Person
 {
-    public class Person
-    {
-        public int PersonId { get; set; }
-        public string Name { get; set; }
-    }
+    [Key]
+    public int PersonId { get; set; }
+    public string Name { get; set; }
 }

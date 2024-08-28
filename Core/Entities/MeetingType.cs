@@ -1,8 +1,6 @@
-﻿namespace MeetingMinutesApp.Core.Entities
+﻿namespace MeetingMinutesApp.Core.Entities;
+public class MeetingType
 {
-    public class MeetingType
-    {
-        public int MeetingTypeId { get; set; }
-        public string Name { get; set; }
-    }
+    public int Id { get; set; }
+    public string Name { get; set; }
 }

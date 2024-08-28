@@ -1,6 +1,0 @@
-@MeetingMinutesApp_HostAddress = http://localhost:5228
-
-GET {{MeetingMinutesApp_HostAddress}}/
-Accept: application/json
-
-###
