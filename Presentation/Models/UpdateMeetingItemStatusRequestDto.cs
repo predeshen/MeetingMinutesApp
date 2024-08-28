@@ -1,6 +1,6 @@
 ﻿namespace MeetingMinutesApp.Presentation.Models
 {
-    public class UpdateMeetingItemStatusRequest
+    public class UpdateMeetingItemStatusRequestDto
     {
         public string Status { get; set; }
     }

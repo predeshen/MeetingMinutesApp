@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
+using FluentValidation;
 using Microsoft.Extensions.Logging;
 using MeetingMinutesApp.Infrastructure.Data;
 using MeetingMinutesApp.Core.Entities;
+using MeetingMinutesApp.Application.Validators;
 
 namespace MeetingMinutesApp.Application.UseCases
 {
@@ -10,37 +12,30 @@ namespace MeetingMinutesApp.Application.UseCases
     {
         private readonly MeetingMinutesAppContext _context;
         private readonly ILogger<CaptureNewMeeting> _logger;
+        private readonly IValidator<CaptureNewMeetingRequest> _validator;
 
-        public CaptureNewMeeting(MeetingMinutesAppContext context, ILogger<CaptureNewMeeting> logger)
+        public CaptureNewMeeting(MeetingMinutesAppContext context, ILogger<CaptureNewMeeting> logger, IValidator<CaptureNewMeetingRequest> validator)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _validator = validator ?? throw new ArgumentNullException(nameof(validator));
         }
 
-        public async Task ExecuteAsync(int meetingTypeId, DateTime date, TimeSpan time)
+        public async Task ExecuteAsync(CaptureNewMeetingRequest request)
         {
-            if (meetingTypeId <= 0)
+            var validationResult = await _validator.ValidateAsync(request);
+            if (!validationResult.IsValid)
             {
-                throw new ArgumentException("Invalid meeting type ID.", nameof(meetingTypeId));
-            }
-
-            if (date == default)
-            {
-                throw new ArgumentException("Invalid date.", nameof(date));
-            }
-
-            if (time == default)
-            {
-                throw new ArgumentException("Invalid time.", nameof(time));
+                throw new ValidationException(validationResult.Errors);
             }
 
             try
             {
                 var meeting = new Meeting
                 {
-                    MeetingTypeId = meetingTypeId,
-                    Date = date,
-                    Time = time
+                    MeetingTypeId = request.MeetingTypeId,
+                    Date = request.Date,
+                    Time = request.Time
                 };
 
                 _context.Meetings.Add(meeting);

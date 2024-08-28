@@ -3,6 +3,9 @@ using MeetingMinutesApp.Infrastructure.Data;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using MeetingMinutesApp.Application.Validators;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 
 internal class Program
 {
@@ -15,6 +18,10 @@ internal class Program
             {
                 options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
             });
+        builder.Services.AddFluentValidationAutoValidation();
+        builder.Services.AddValidatorsFromAssemblyContaining<CaptureNewMeetingValidator>();
+        builder.Services.AddValidatorsFromAssemblyContaining<UpdateMeetingItemStatusValidator>();
+
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
